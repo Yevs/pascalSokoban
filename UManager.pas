@@ -64,6 +64,11 @@ implementation
             shutdown;
             break;
           end;
+        MAIN_MENU_EXIT:
+          begin
+            shutdown;
+            break;
+          end;
       end;
     until false;
   end;

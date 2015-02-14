@@ -34,6 +34,13 @@ implementation
    end;
  end;
 
+ function handleenter: integer;
+ begin
+ case selected of
+   4: handleenter := MAIN_MENU_EXIT;
+ end;
+ end;
+
  function updateMainMenu(c: char): integer;
  var res: integer;
      shoulddraw: boolean;
@@ -58,9 +65,11 @@ implementation
          inc(selected);
          if selected > 4 then selected := 4;
        end;
+     #13:
+         res := handleenter;
      #27:
        begin
-         res := EXIT_CODE;
+         res := MAIN_MENU_EXIT;
        end
        else
       shoulddraw := false;
