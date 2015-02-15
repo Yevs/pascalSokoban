@@ -27,172 +27,71 @@ implementation
               100*j, 100*i);
   end;
 
-    procedure moveUp;
+  procedure move(di, dj: integer);
   begin
-    if arr[playeri - 1, playerj] = SPACE_CHAR then
+    if arr[playeri + di, playerj + dj] = SPACE_CHAR then
     begin
       arr[playeri, playerj] := SPACE_CHAR;
-      dec(playeri);
+      playeri := playeri + di;
+          playerj := playerj + dj;
     end
     else
     begin
-      if arr[playeri - 1, playerj] = BLOCK_CHAR then
+      if arr[playeri + di, playerj + dj] = BLOCK_CHAR then
       begin
-        if arr[playeri - 2, playerj] = SPACE_CHAR then
+        if arr[playeri + 2 * di, playerj + 2 * dj] = SPACE_CHAR then
         begin
-          arr[playeri - 2, playerj] := BLOCK_CHAR;
-          arr[playeri - 1, playerj] := SPACE_CHAR;
-          dec(playeri);
+          arr[playeri + 2 * di, playerj + 2 * dj] := BLOCK_CHAR;
+          arr[playeri + di, playerj + dj] := SPACE_CHAR;
+          playeri := playeri + di;
+          playerj := playerj + dj;
         end;
-        if arr[playeri - 2, playerj] = GOAL_CHAR then
+        if arr[playeri + 2 * di, playerj + 2 * dj] = GOAL_CHAR then
         begin
-          arr[playeri - 2, playerj] := GOALBLOCK_CHAR;
-          arr[playeri - 1, playerj] := SPACE_CHAR;
-          dec(playeri);
+          arr[playeri + 2 * di, playerj + 2 * dj] := GOALBLOCK_CHAR;
+          arr[playeri + di, playerj + dj] := SPACE_CHAR;
+          playeri := playeri + di;
+          playerj := playerj + dj;
         end;
       end;
-      if arr[playeri - 1, playerj] = GOALBLOCK_CHAR then
+      if arr[playeri + di, playerj + dj] = GOALBLOCK_CHAR then
       begin
-        if arr[playeri - 2, playerj] = SPACE_CHAR then
+        if arr[playeri + 2 * di, playerj + 2 * dj] = SPACE_CHAR then
         begin
-          arr[playeri - 2, playerj] := BLOCK_CHAR;
-          arr[playeri - 1, playerj] := GOAL_CHAR;
-          dec(playeri);
+          arr[playeri + 2 * di, playerj + 2 * dj] := BLOCK_CHAR;
+          arr[playeri + di, playerj + dj] := GOAL_CHAR;
+          playeri := playeri + di;
+          playerj := playerj + dj;
         end;
-        if arr[playeri - 2, playerj] = GOAL_CHAR then
+        if arr[playeri + 2 * di, playerj + 2 * dj] = GOAL_CHAR then
         begin
-          arr[playeri - 2, playerj] := GOALBLOCK_CHAR;
-          arr[playeri - 1, playerj] := GOAL_CHAR;
-          dec(playeri);
+          arr[playeri + 2 * di, playerj + 2 * dj] := GOALBLOCK_CHAR;
+          arr[playeri + di, playerj + dj] := GOAL_CHAR;
+          playeri := playeri + di;
+          playerj := playerj + dj;
         end;
       end;
     end;
+  end;
+
+    procedure moveUp;
+  begin
+    move(-1, 0);
   end;
 
   procedure moveLeft;
   begin
-    if arr[playeri, playerj - 1] = SPACE_CHAR then
-    begin
-      arr[playeri, playerj] := SPACE_CHAR;
-      dec(playerj);
-    end
-    else
-    begin
-      if arr[playeri, playerj - 1] = BLOCK_CHAR then
-      begin
-        if arr[playeri, playerj - 2] = SPACE_CHAR then
-        begin
-          arr[playeri, playerj - 2] := BLOCK_CHAR;
-          arr[playeri, playerj - 1] := SPACE_CHAR;
-          dec(playerj);
-        end;
-        if arr[playeri, playerj - 2] = GOAL_CHAR then
-        begin
-          arr[playeri, playerj - 2] := GOALBLOCK_CHAR;
-          arr[playeri, playerj - 1] := SPACE_CHAR;
-          dec(playerj);
-        end;
-      end;
-      if arr[playeri, playerj - 1] = GOALBLOCK_CHAR then
-      begin
-        if arr[playeri, playerj - 2] = SPACE_CHAR then
-        begin
-          arr[playeri, playerj - 2] := BLOCK_CHAR;
-          arr[playeri, playerj - 1] := GOAL_CHAR;
-          dec(playerj);
-        end;
-        if arr[playeri, playerj - 2] = GOAL_CHAR then
-        begin
-          arr[playeri, playerj - 2] := GOALBLOCK_CHAR;
-          arr[playeri, playerj - 1] := GOAL_CHAR;
-          dec(playerj);
-        end;
-      end;
-    end;
+    move(0, -1);
   end;
 
   procedure moveRight;
   begin
-    if arr[playeri, playerj + 1] = SPACE_CHAR then
-    begin
-      arr[playeri, playerj] := SPACE_CHAR;
-      inc(playerj);
-    end
-    else
-    begin
-      if arr[playeri, playerj + 1] = BLOCK_CHAR then
-      begin
-        if arr[playeri, playerj + 2] = SPACE_CHAR then
-        begin
-          arr[playeri, playerj + 2] := BLOCK_CHAR;
-          arr[playeri, playerj + 1] := SPACE_CHAR;
-          inc(playerj);
-        end;
-        if arr[playeri, playerj + 2] = GOAL_CHAR then
-        begin
-          arr[playeri, playerj + 2] := GOALBLOCK_CHAR;
-          arr[playeri, playerj + 1] := SPACE_CHAR;
-          inc(playerj);
-        end;
-      end;
-      if arr[playeri, playerj + 1] = GOALBLOCK_CHAR then
-      begin
-        if arr[playeri, playerj + 2] = SPACE_CHAR then
-        begin
-          arr[playeri, playerj + 2] := BLOCK_CHAR;
-          arr[playeri, playerj + 1] := GOAL_CHAR;
-          inc(playerj);
-        end;
-        if arr[playeri, playerj + 2] = GOAL_CHAR then
-        begin
-          arr[playeri, playerj + 2] := GOALBLOCK_CHAR;
-          arr[playeri, playerj + 1] := GOAL_CHAR;
-          inc(playerj);
-        end;
-      end;
-    end;
+    move(0, 1);
   end;
 
   procedure moveDown;
   begin
-    if arr[playeri + 1, playerj] = SPACE_CHAR then
-    begin
-      arr[playeri, playerj] := SPACE_CHAR;
-      inc(playeri);
-    end
-    else
-    begin
-      if arr[playeri + 1, playerj] = BLOCK_CHAR then
-      begin
-        if arr[playeri + 2, playerj] = SPACE_CHAR then
-        begin
-          arr[playeri + 2, playerj] := BLOCK_CHAR;
-          arr[playeri + 1, playerj] := SPACE_CHAR;
-          inc(playeri);
-        end;
-        if arr[playeri + 2, playerj] = GOAL_CHAR then
-        begin
-          arr[playeri + 2, playerj] := GOALBLOCK_CHAR;
-          arr[playeri + 1, playerj] := SPACE_CHAR;
-          inc(playeri);
-        end;
-      end;
-      if arr[playeri + 1, playerj] = GOALBLOCK_CHAR then
-      begin
-        if arr[playeri + 2, playerj] = SPACE_CHAR then
-        begin
-          arr[playeri + 2, playerj] := BLOCK_CHAR;
-          arr[playeri + 1, playerj] := GOAL_CHAR;
-          inc(playeri);
-        end;
-        if arr[playeri + 2, playerj] = GOAL_CHAR then
-        begin
-          arr[playeri + 2, playerj] := GOALBLOCK_CHAR;
-          arr[playeri + 1, playerj] := GOAL_CHAR;
-          inc(playeri);
-        end;
-      end;
-    end;
+    move(1, 0);
   end;
 
   procedure uploadMap(path: string);
