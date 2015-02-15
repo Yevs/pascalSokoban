@@ -37,6 +37,9 @@ implementation
  function handleenter: integer;
  begin
  case selected of
+   1: handleenter := MAIN_MENU_PLAY;
+   2: handleenter := MAIN_MENU_HELP;
+   3: handleenter := MAIN_MENU_ABOUT;
    4: handleenter := MAIN_MENU_EXIT;
  end;
  end;

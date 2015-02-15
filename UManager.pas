@@ -3,7 +3,8 @@ unit UManager;
 interface
 
   uses graph, UGameState, UConfig,
-       UMainMenu, crt;
+       UMainMenu, UHelpScreen, UAboutScreen,
+       UGame, crt;
 
   procedure draw;
   function update(c:char):integer;
@@ -16,13 +17,20 @@ implementation
   begin
     state := getstate;
     case state of
+      GAME_STATE:
+        begin
+          drawgame;
+        end;
       MAIN_MENU_STATE:
         begin
           drawmainmenu;
         end;
-      GAME_STATE:
-       begin
-       end;
+      HELP_STATE:
+        begin
+          drawhelpscreen;
+        end;
+      ABOUT_STATE:
+        drawaboutscreen;
     end;
   end;
 
@@ -32,13 +40,20 @@ implementation
     res := 0;
     state := getstate;
     case state of
+      GAME_STATE:
+        begin
+          res := updateGame(c);
+        end;
       MAIN_MENU_STATE:
         begin
           res := updateMainMenu(c);
         end;
-      GAME_STATE:
+      HELP_STATE:
         begin
+          res := updateHelpScreen(c);
         end;
+      ABOUT_STATE:
+        res := updateaboutscreen(c);
     end;
     update := res;
   end;
@@ -69,6 +84,33 @@ implementation
             shutdown;
             break;
           end;
+        MAIN_MENU_HELP:
+          begin
+            pushState(HELP_STATE);
+            draw;
+          end;
+        MAIN_MENU_ABOUT:
+          begin
+            pushState(ABOUT_STATE);
+            draw;
+          end;
+        MAIN_MENU_PLAY:
+          begin
+            pushState(GAME_STATE);
+            draw;
+          end;
+        HELP_SCREEN_EXIT:
+          begin
+            delstate;
+            draw;
+          end;
+        ABOUT_SCREEN_EXIT:
+          begin
+            delstate;
+            draw;
+          end;
+        GAME_REDRAW:
+          draw;
       end;
     until false;
   end;
