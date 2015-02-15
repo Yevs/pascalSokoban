@@ -19,7 +19,7 @@ implementation
       width, height: integer;
       wasLevelLoaded: boolean = false;
       playeri, playerj: integer;
-      waslastgoal: booelan = false;
+      waslastgoal: boolean = false;
 
   procedure drawrectanglefromcoords(i,j: integer; color: word);
   begin
