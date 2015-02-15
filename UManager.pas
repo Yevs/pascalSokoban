@@ -4,7 +4,7 @@ interface
 
   uses graph, UGameState, UConfig,
        UMainMenu, UHelpScreen, UAboutScreen,
-       UGame, crt;
+       UGame, UPauseMenu, crt;
 
   procedure draw;
   function update(c:char):integer;
@@ -31,6 +31,8 @@ implementation
         end;
       ABOUT_STATE:
         drawaboutscreen;
+      PAUSE_STATE:
+        drawpausemenu;
     end;
   end;
 
@@ -54,6 +56,8 @@ implementation
         end;
       ABOUT_STATE:
         res := updateaboutscreen(c);
+      PAUSE_STATE:
+        res := updatePauseMenu(c);
     end;
     update := res;
   end;
@@ -111,6 +115,16 @@ implementation
           end;
         GAME_REDRAW:
           draw;
+        PAUSE_MENU_EXIT:
+          begin
+            delstate;
+            draw;
+          end;
+        GAME_PAUSE:
+          begin
+            pushstate(PAUSE_STATE);
+            draw;
+          end;
       end;
     until false;
   end;

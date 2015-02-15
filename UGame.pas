@@ -19,6 +19,7 @@ implementation
       width, height: integer;
       wasLevelLoaded: boolean = false;
       playeri, playerj: integer;
+      waslastgoal: booelan = false;
 
   procedure drawrectanglefromcoords(i,j: integer; color: word);
   begin
@@ -31,44 +32,57 @@ implementation
   begin
     if arr[playeri + di, playerj + dj] = SPACE_CHAR then
     begin
+      waslastgoal := false;
       arr[playeri, playerj] := SPACE_CHAR;
       playeri := playeri + di;
           playerj := playerj + dj;
     end
     else
     begin
-      if arr[playeri + di, playerj + dj] = BLOCK_CHAR then
+      if arr[playeri + di, playerj + dj] = GOAL_CHAR then
       begin
-        if arr[playeri + 2 * di, playerj + 2 * dj] = SPACE_CHAR then
+        waslastgoal := true;
+        arr[playeri, playerj] := SPACE_CHAR;
+        playeri := playeri + di;
+        playerj := playerj + dj;
+      end
+      else
         begin
-          arr[playeri + 2 * di, playerj + 2 * dj] := BLOCK_CHAR;
-          arr[playeri + di, playerj + dj] := SPACE_CHAR;
-          playeri := playeri + di;
-          playerj := playerj + dj;
+        if arr[playeri + di, playerj + dj] = BLOCK_CHAR then
+        begin
+          if arr[playeri + 2 * di, playerj + 2 * dj] = SPACE_CHAR then
+          begin
+            waslastgoal := false;
+            arr[playeri + 2 * di, playerj + 2 * dj] := BLOCK_CHAR;
+            arr[playeri + di, playerj + dj] := SPACE_CHAR;
+            playeri := playeri + di;
+            playerj := playerj + dj;
+          end;
+          if arr[playeri + 2 * di, playerj + 2 * dj] = GOAL_CHAR then
+          begin
+            waslastgoal := false;
+            arr[playeri + 2 * di, playerj + 2 * dj] := GOALBLOCK_CHAR;
+            arr[playeri + di, playerj + dj] := SPACE_CHAR;
+            playeri := playeri + di;
+            playerj := playerj + dj;
+          end;
         end;
-        if arr[playeri + 2 * di, playerj + 2 * dj] = GOAL_CHAR then
+        if arr[playeri + di, playerj + dj] = GOALBLOCK_CHAR then
         begin
-          arr[playeri + 2 * di, playerj + 2 * dj] := GOALBLOCK_CHAR;
-          arr[playeri + di, playerj + dj] := SPACE_CHAR;
-          playeri := playeri + di;
-          playerj := playerj + dj;
-        end;
-      end;
-      if arr[playeri + di, playerj + dj] = GOALBLOCK_CHAR then
-      begin
-        if arr[playeri + 2 * di, playerj + 2 * dj] = SPACE_CHAR then
-        begin
-          arr[playeri + 2 * di, playerj + 2 * dj] := BLOCK_CHAR;
-          arr[playeri + di, playerj + dj] := GOAL_CHAR;
-          playeri := playeri + di;
-          playerj := playerj + dj;
-        end;
-        if arr[playeri + 2 * di, playerj + 2 * dj] = GOAL_CHAR then
-        begin
-          arr[playeri + 2 * di, playerj + 2 * dj] := GOALBLOCK_CHAR;
-          arr[playeri + di, playerj + dj] := GOAL_CHAR;
-          playeri := playeri + di;
-          playerj := playerj + dj;
+          if arr[playeri + 2 * di, playerj + 2 * dj] = SPACE_CHAR then
+          begin
+            arr[playeri + 2 * di, playerj + 2 * dj] := BLOCK_CHAR;
+            arr[playeri + di, playerj + dj] := GOAL_CHAR;
+            playeri := playeri + di;
+            playerj := playerj + dj;
+          end;
+          if arr[playeri + 2 * di, playerj + 2 * dj] = GOAL_CHAR then
+          begin
+            arr[playeri + 2 * di, playerj + 2 * dj] := GOALBLOCK_CHAR;
+            arr[playeri + di, playerj + dj] := GOAL_CHAR;
+            playeri := playeri + di;
+            playerj := playerj + dj;
+          end;
         end;
       end;
     end;
@@ -176,7 +190,7 @@ implementation
             res := GAME_REDRAW;
           end;
         #27:
-            updateGame := GAME_EXIT;
+            res := GAME_PAUSE;
       end;
     end;
     updateGame := res;
