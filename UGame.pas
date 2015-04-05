@@ -6,7 +6,6 @@ interface
   procedure drawGame;
   function updateGame(c: char): integer;
 
-
 implementation
 
   const WALL_CHAR = 'w';
@@ -16,10 +15,12 @@ implementation
   const SPACE_CHAR = 's';
 
   var arr: array[1..50, 1..50] of char;
+      goals: array[1..50, 1..50] of boolean;
       width, height: integer;
       wasLevelLoaded: boolean = false;
       playeri, playerj: integer;
       waslastgoal: boolean = false;
+
 
   procedure drawrectanglefromcoords(i,j: integer; color: word);
   begin
@@ -28,64 +29,40 @@ implementation
               100*j, 100*i);
   end;
 
-  procedure move(di, dj: integer);
+  function isPossibleMove(di, dj: integer) : boolean;
+  var res: boolean = true;
   begin
-    if arr[playeri + di, playerj + dj] = SPACE_CHAR then
+    if arr[playeri+di, playerj+dj] = WALL_CHAR then
+      res := res and false;
+    if (arr[playeri+di, playerj+dj] = BLOCK_CHAR) then
     begin
-      waslastgoal := false;
-      arr[playeri, playerj] := SPACE_CHAR;
-      playeri := playeri + di;
-          playerj := playerj + dj;
-    end
-    else
-    begin
-      if arr[playeri + di, playerj + dj] = GOAL_CHAR then
-      begin
-        waslastgoal := true;
-        arr[playeri, playerj] := SPACE_CHAR;
-        playeri := playeri + di;
-        playerj := playerj + dj;
-      end
-      else
-        begin
-        if arr[playeri + di, playerj + dj] = BLOCK_CHAR then
-        begin
-          if arr[playeri + 2 * di, playerj + 2 * dj] = SPACE_CHAR then
-          begin
-            waslastgoal := false;
-            arr[playeri + 2 * di, playerj + 2 * dj] := BLOCK_CHAR;
-            arr[playeri + di, playerj + dj] := SPACE_CHAR;
-            playeri := playeri + di;
-            playerj := playerj + dj;
-          end;
-          if arr[playeri + 2 * di, playerj + 2 * dj] = GOAL_CHAR then
-          begin
-            waslastgoal := false;
-            arr[playeri + 2 * di, playerj + 2 * dj] := GOALBLOCK_CHAR;
-            arr[playeri + di, playerj + dj] := SPACE_CHAR;
-            playeri := playeri + di;
-            playerj := playerj + dj;
-          end;
-        end;
-        if arr[playeri + di, playerj + dj] = GOALBLOCK_CHAR then
-        begin
-          if arr[playeri + 2 * di, playerj + 2 * dj] = SPACE_CHAR then
-          begin
-            arr[playeri + 2 * di, playerj + 2 * dj] := BLOCK_CHAR;
-            arr[playeri + di, playerj + dj] := GOAL_CHAR;
-            playeri := playeri + di;
-            playerj := playerj + dj;
-          end;
-          if arr[playeri + 2 * di, playerj + 2 * dj] = GOAL_CHAR then
-          begin
-            arr[playeri + 2 * di, playerj + 2 * dj] := GOALBLOCK_CHAR;
-            arr[playeri + di, playerj + dj] := GOAL_CHAR;
-            playeri := playeri + di;
-            playerj := playerj + dj;
-          end;
-        end;
-      end;
+       if (arr[playeri+di*2, playerj+dj*2] = BLOCK_CHAR) then
+         res := res and false;
+       if (arr[playeri+di*2, playerj+dj*2] = WALL_CHAR) then
+         res := res and false;
     end;
+    ispossiblemove := res;
+  end;
+
+  procedure move(di, dj: integer);
+  var tmp : char;
+  begin
+   if ispossiblemove(di, dj) then
+   begin
+     if arr[playeri+di, playerj+dj] = SPACE_CHAR then
+     begin
+       playeri := playeri + di;
+       playerj := playerj + dj;
+     end;
+     if (arr[playeri + di, playerj+dj]=BLOCK_CHAR) and
+        (arr[playeri + di*2, playerj+dj*2]=SPACE_CHAR) then
+        begin
+          arr[playeri+di, playerj+dj] := SPACE_CHAR;
+          arr[playeri+di*2, playerj+dj*2] := BLOCK_CHAR;
+          playeri := playeri+di;
+          playerj := playerj+dj;
+        end;
+   end;
   end;
 
     procedure moveUp;
@@ -124,7 +101,15 @@ implementation
     begin
       for j := 1 to width do
       begin
-        read(f, arr[i, j]);
+        //read(f, arr[i, j]);
+        goals[i, j] := false;
+        arr[i, j] := SPACE_CHAR;
+        read(f, c);
+        if (c = GOAL_CHAR) or
+           (c = GOALBLOCK_CHAR) then goals[i, j] := true;
+        if c = WALL_CHAR then arr[i, j] := c;
+        if (c = GOALBLOCK_CHAR) or
+           (c = BLOCK_CHAR) then arr[i, j] := BLOCK_CHAR;
       end;
       readln(f);
     end;
@@ -142,6 +127,7 @@ implementation
     cleardevice;
     for i := 1 to height do
       for j := 1 to width do
+      begin
         case arr[i, j] of
           WALL_CHAR: drawrectanglefromcoords(i, j, brown);
           BLOCK_CHAR: drawrectanglefromcoords(i, j, white);
@@ -149,6 +135,11 @@ implementation
           GOALBLOCK_CHAR: drawrectanglefromcoords(i, j,green);
           SPACE_CHAR: drawrectanglefromcoords(i, j, black);
         end;
+        if goals[i,j] then drawrectanglefromcoords(i, j, red);
+        if (goals[i,j]) and
+           (arr[i,j] = BLOCK_CHAR) then drawrectanglefromcoords(i, j, green);
+
+      end;
     drawrectanglefromcoords(playeri, playerj, blue);
   end;
 

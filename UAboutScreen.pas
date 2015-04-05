@@ -14,7 +14,7 @@ implementation
     cleardevice;
     setcolor(white);
     settextjustify(centertext, centertext);
-    outtextxy(640 div 2, 480 div 2, 'This shit is created by Yevhen Y.');
+    outtextxy(640 div 2, 480 div 2, 'This game is created by Yevhen Y.');
   end;
 
   function updateAboutScreen(c: char): integer;

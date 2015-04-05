@@ -2,7 +2,7 @@ unit UMainMenu;
 
 interface
 
-  uses graph, UConfig, crt;
+  uses graph, UConfig, crt, UGame;
 
   const elements: array[1..4] of string =
      ('play', 'help', 'about', 'exit');
