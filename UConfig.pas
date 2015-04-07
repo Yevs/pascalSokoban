@@ -27,6 +27,8 @@ interface
 
   const PAUSE_MENU_EXIT = 500;
 
+  CONST PAUSE_MENU_RESTART = 701;
+
 implementation
 
 end.

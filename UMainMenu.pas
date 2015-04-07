@@ -20,7 +20,7 @@ implementation
  const x2 = 389;
  var y, i: integer;
  begin
-   cleardevice;
+   clearviewport;
    setcolor(white);
    settextjustify(centertext, centertext);
    y := 100;

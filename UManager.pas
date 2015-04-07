@@ -125,6 +125,12 @@ implementation
             pushstate(PAUSE_STATE);
             draw;
           end;
+        PAUSE_MENU_RESTART:
+          begin
+            delstate;
+            restart;
+            draw;
+          end;
       end;
     until false;
   end;

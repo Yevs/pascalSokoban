@@ -9,9 +9,9 @@ interface
 
 implementation
 
-  const ELEM_COUNT = 2;
+  const ELEM_COUNT = 3;
   const elements: array[1..ELEM_COUNT] of string =
-                  ('resume', 'exit');
+                  ('resume', 'restart', 'exit');
   
   var cur: integer = 1;
 
@@ -42,7 +42,8 @@ implementation
     handleenter := 0;
     case cur of 
       1: handleenter := PAUSE_MENU_EXIT;
-      2: handleenter := EXIT_CODE;
+      2: handleenter := PAUSE_MENU_RESTART;
+      3: handleenter := EXIT_CODE;
     end;
   end;
 

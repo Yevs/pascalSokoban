@@ -4,6 +4,7 @@ interface
 
   uses graph, UConfig, crt;
   procedure drawGame;
+  procedure restart;
   function updateGame(c: char): integer;
 
 implementation
@@ -13,13 +14,16 @@ implementation
   const GOAL_CHAR = 'g';
   const GOALBLOCK_CHAR = '$';
   const SPACE_CHAR = 's';
+  const LEVEL_COUNT = 1;
 
-  var arr: array[1..50, 1..50] of char;
+  var levels: array[0..LEVEL_COUNT-1] of string = ('map.txt');
+      arr: array[1..50, 1..50] of char;
       goals: array[1..50, 1..50] of boolean;
       width, height: integer;
       wasLevelLoaded: boolean = false;
       playeri, playerj: integer;
       waslastgoal: boolean = false;
+      curLvl: integer = 0;
 
 
   procedure drawrectanglefromcoords(i,j: integer; color: word);
@@ -85,11 +89,13 @@ implementation
     move(1, 0);
   end;
 
-  procedure uploadMap(path: string);
+  procedure uploadMap;
   var f: text;
       c: char;
       i, j: integer;
+      path: string;
   begin
+    path := levels[curLvl];
     assign(f, path);
     reset(f);
     read(f, height);
@@ -122,7 +128,7 @@ implementation
     if not wasLevelLoaded then
     begin
       wasLevelLoaded := true;
-      uploadMap('map.txt');
+      uploadMap;
     end;
     cleardevice;
     for i := 1 to height do
@@ -143,13 +149,29 @@ implementation
     drawrectanglefromcoords(playeri, playerj, blue);
   end;
 
+  function isWon: boolean;
+  var i, j: integer;
+      res: boolean;
+  begin
+    res := true;
+    for i := 1 to height do
+      for j := 1 to width do
+        if (arr[i, j] = BLOCK_CHAR) and (not goals[i, j]) then
+        begin
+          res := false;
+          break;
+        end;
+    isWon := res;
+  end;
+
+
   function updateGame(c: char): integer;
   var res: integer;
   begin
     if not wasLevelLoaded then
     begin
       wasLevelLoaded := true;
-      uploadMap('map.txt');
+      uploadMap;
     end;
     res := 0;
     if c = #0 then
@@ -185,25 +207,18 @@ implementation
       end;
     end;
     updateGame := res;
+    if iswon then 
+    begin
+      drawGame;
+      delay(500);
+      curLvl := (curLvl + 1) mod LEVEL_COUNT;
+      uploadMap;
+    end;
   end;
 
-
-
-  function isWon: boolean;
-  var i, j: integer;
-      res: boolean;
+  procedure restart;
   begin
-    res := true;
-    for i := 1 to height do
-      for j := 1 to width do
-        if arr[i, j] = BLOCK_CHAR then
-        begin
-          res := false;
-          break;
-        end;
-    isWon := res;
+    uploadMap;
   end;
-
-
 
 end.
