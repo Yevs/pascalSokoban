@@ -20,7 +20,7 @@ implementation
  const x2 = 389;
  var y, i: integer;
  begin
-   clearviewport;
+   cleardevice;
    setcolor(white);
    settextjustify(centertext, centertext);
    y := 100;
@@ -46,10 +46,9 @@ implementation
 
  function updateMainMenu(c: char): integer;
  var res: integer;
-     shoulddraw: boolean;
+     shoulddraw: boolean = false;
  begin
-   shoulddraw := true;
-   res := 1;
+   res := 0;
    if c = #0 then
    begin
      c := readkey;
@@ -61,21 +60,21 @@ implementation
      #72:
        begin
          dec(selected);
-         if selected <= 0 then selected := 1;
+         if selected <= 0 then selected := 1
+         else shoulddraw := true;
        end;
      #80:
        begin
          inc(selected);
-         if selected > 4 then selected := 4;
+         if selected > 4 then selected := 4
+         else shoulddraw := true;
        end;
      #13:
          res := handleenter;
      #27:
        begin
          res := MAIN_MENU_EXIT;
-       end
-       else
-      shoulddraw := false;
+       end;
      end;
 
    end;

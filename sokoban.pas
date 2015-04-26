@@ -8,9 +8,10 @@ var gd, gm: integer;
 begin
   gd := detect;
   gm := 0;
+  //setgraphmode(m800x600);
   initgraph(gd, gm, '');
   closegraph;
-  setgraphmode(m640x480);
+  setgraphmode(m800x600);
   init;
   closegraph;
 end.

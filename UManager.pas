@@ -12,9 +12,13 @@ interface
 
 implementation
 
+  var curpage: integer = 0;
+
   procedure draw;
   var state: integer;
   begin
+    //setactivepage((curpage + 1) mod 2);
+    //cleardevice;
     state := getstate;
     case state of
       GAME_STATE:
@@ -34,6 +38,9 @@ implementation
       PAUSE_STATE:
         drawpausemenu;
     end;
+  //delay(1000);
+    //setvisualpage((curpage + 1) mod 2);
+    //curpage := (curpage + 1) mod 2
   end;
 
   function update(c: char):integer;

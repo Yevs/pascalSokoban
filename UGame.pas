@@ -14,9 +14,19 @@ implementation
   const GOAL_CHAR = 'g';
   const GOALBLOCK_CHAR = '$';
   const SPACE_CHAR = 's';
-  const LEVEL_COUNT = 1;
+  const LEVEL_COUNT = 2;
+  const BLOCK_WDITH = 50;
+  const BLOCK_HEIGHT = 50;
 
-  var levels: array[0..LEVEL_COUNT-1] of string = ('map.txt');
+  const WALL_TYPE = 0;
+  CONST BLOCK_TYPE = 1;
+  CONST GOAL_TYPE = 0;
+  CONST SPACE_TYPE = 0;
+  CONST PLAYER_TYPE = 2;
+
+  var levels: array[0..LEVEL_COUNT-1] of string = ('map.txt', 'map1.txt');
+      drawstack: array[1..10000, 1..2] of integer;
+      dstackcount: integer = 0;
       arr: array[1..50, 1..50] of char;
       goals: array[1..50, 1..50] of boolean;
       width, height: integer;
@@ -24,13 +34,30 @@ implementation
       playeri, playerj: integer;
       waslastgoal: boolean = false;
       curLvl: integer = 0;
+      x0, y0: integer;
 
 
-  procedure drawrectanglefromcoords(i,j: integer; color: word);
+  procedure drawrectanglefromcoords(i,j: integer; color: word; btype: integer);
+  var deltax, deltay: integer;
   begin
+    setfillstyle(solidfill, color);
+    deltay := 0;
+    deltax := 0;
+    case btype of
+      BLOCK_TYPE:
+        begin
+          deltax := 3;
+          deltay := 3;
+        end;
+      PLAYER_TYPE:
+        begin
+          deltax := 3;
+          deltay := 3;
+        end;
+    end;
     setcolor(color);
-    rectangle(100*(j-1) + 1, 100*(i-1) + 1,
-              100*j, 100*i);
+    bar(x0 + BLOCK_WDITH*(j-1) + 1 + deltax, y0 + BLOCK_HEIGHT*(i-1) + 1 + deltay,
+              x0 + BLOCK_WDITH*j - deltax, y0 + BLOCK_HEIGHT*i - deltay);
   end;
 
   function isPossibleMove(di, dj: integer) : boolean;
@@ -55,17 +82,39 @@ implementation
    begin
      if arr[playeri+di, playerj+dj] = SPACE_CHAR then
      begin
+       inc(dstackcount);
+       drawstack[dstackcount, 1] := playeri;
+       drawstack[dstackcount, 2] := playerj;
+       inc(dstackcount);
+       drawstack[dstackcount, 1] := playeri + di;
+       drawstack[dstackcount, 2] := playerj + dj;
        playeri := playeri + di;
        playerj := playerj + dj;
-     end;
+     end
+     else
      if (arr[playeri + di, playerj+dj]=BLOCK_CHAR) and
         (arr[playeri + di*2, playerj+dj*2]=SPACE_CHAR) then
         begin
+          inc(dstackcount);
+          drawstack[dstackcount, 1] := playeri;
+          drawstack[dstackcount, 2] := playerj;
+          inc(dstackcount);
+          drawstack[dstackcount, 1] := playeri + di;
+          drawstack[dstackcount, 2] := playerj + dj;
+          inc(dstackcount);
+          drawstack[dstackcount, 1] := playeri + 2 * di;
+          drawstack[dstackcount, 2] := playerj + 2 * dj;
           arr[playeri+di, playerj+dj] := SPACE_CHAR;
           arr[playeri+di*2, playerj+dj*2] := BLOCK_CHAR;
           playeri := playeri+di;
           playerj := playerj+dj;
         end;
+   end
+   else
+   begin
+    inc(dstackcount);
+    drawstack[dstackcount, 1] := playeri;
+    drawstack[dstackcount, 2] := playerj;
    end;
   end;
 
@@ -95,11 +144,14 @@ implementation
       i, j: integer;
       path: string;
   begin
+    dstackcount := 0;
     path := levels[curLvl];
     assign(f, path);
     reset(f);
     read(f, height);
     read(f, width);
+    x0 := (800 - width * BLOCK_WDITH) div 2;
+    y0 := (600 - height * BLOCK_HEIGHT) div 2;
     read(f, playeri);
     read(f, playerj);
     readln(f);
@@ -124,29 +176,57 @@ implementation
 
   procedure drawGame;
   var i, j: integer;
+      x, y: integer;
   begin
     if not wasLevelLoaded then
     begin
       wasLevelLoaded := true;
       uploadMap;
     end;
-    cleardevice;
-    for i := 1 to height do
-      for j := 1 to width do
+    if dstackcount > 0 then
+    begin
+      while (dstackcount > 0) do
       begin
-        case arr[i, j] of
-          WALL_CHAR: drawrectanglefromcoords(i, j, brown);
-          BLOCK_CHAR: drawrectanglefromcoords(i, j, white);
-          GOAL_CHAR: drawrectanglefromcoords(i, j,red);
-          GOALBLOCK_CHAR: drawrectanglefromcoords(i, j,green);
-          SPACE_CHAR: drawrectanglefromcoords(i, j, black);
+        x := drawstack[dstackcount, 1];
+        y := drawstack[dstackcount, 2];
+        case arr[x, y] of
+          WALL_CHAR: drawrectanglefromcoords(x, y, brown, BLOCK_TYPE);
+          BLOCK_CHAR: drawrectanglefromcoords(x, y, white, BLOCK_TYPE);
+          GOAL_CHAR: drawrectanglefromcoords(x, y,red, GOAL_TYPE);
+          GOALBLOCK_CHAR: drawrectanglefromcoords(x, y,green, GOAL_TYPE);
+          SPACE_CHAR: drawrectanglefromcoords(x, y, black, BLOCK_TYPE);
         end;
-        if goals[i,j] then drawrectanglefromcoords(i, j, red);
-        if (goals[i,j]) and
-           (arr[i,j] = BLOCK_CHAR) then drawrectanglefromcoords(i, j, green);
 
+        if goals[x, y] then drawrectanglefromcoords(x, y, red, GOAL_TYPE);
+        if (goals[x, y]) and (arr[x,y]=BLOCK_CHAR) then
+        begin
+          drawrectanglefromcoords(x, y, green, GOAL_TYPE);
+          drawrectanglefromcoords(x, y, white, BLOCK_TYPE);
+        end;
+        drawrectanglefromcoords(playeri, playerj, yellow, PLAYER_TYPE);
+        dec(dstackcount);
       end;
-    drawrectanglefromcoords(playeri, playerj, blue);
+    end
+    else
+    begin
+      cleardevice;
+        for i := 1 to height do
+          for j := 1 to width do
+          begin
+            if goals[i,j] then drawrectanglefromcoords(i, j, red, GOAL_TYPE);
+            if (goals[i,j]) and
+               (arr[i,j] = BLOCK_CHAR) then drawrectanglefromcoords(i, j, green, GOAL_TYPE);
+  
+            case arr[i, j] of
+              WALL_CHAR: drawrectanglefromcoords(i, j, brown, BLOCK_TYPE);
+              BLOCK_CHAR: drawrectanglefromcoords(i, j, white, BLOCK_TYPE);
+              GOAL_CHAR: drawrectanglefromcoords(i, j,red, GOAL_TYPE);
+              GOALBLOCK_CHAR: drawrectanglefromcoords(i, j,green, GOAL_TYPE);
+            end;
+  
+        end;
+      drawrectanglefromcoords(playeri, playerj, yellow, PLAYER_TYPE);
+    end;
   end;
 
   function isWon: boolean;
@@ -161,6 +241,7 @@ implementation
           res := false;
           break;
         end;
+    //if res then dstackcount := 0;
     isWon := res;
   end;
 

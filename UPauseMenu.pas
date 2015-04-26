@@ -14,6 +14,8 @@ implementation
                   ('resume', 'restart', 'exit');
   
   var cur: integer = 1;
+      drawstack: array[1..20] of integer;
+      scount: integer = 0;
 
   procedure drawPauseMenu;
   
