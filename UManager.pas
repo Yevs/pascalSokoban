@@ -138,6 +138,12 @@ implementation
             restart;
             draw;
           end;
+        PAUSE_MENU_TO_MAIN:
+          begin
+            delstate;
+            delstate;
+            draw;
+          end;
       end;
     until false;
   end;

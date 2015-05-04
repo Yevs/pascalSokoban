@@ -40,6 +40,7 @@ implementation
   procedure drawrectanglefromcoords(i,j: integer; color: word; btype: integer);
   var deltax, deltay: integer;
   begin
+    //setbkcolor(cyan);
     setfillstyle(solidfill, color);
     deltay := 0;
     deltax := 0;
@@ -58,6 +59,7 @@ implementation
     setcolor(color);
     bar(x0 + BLOCK_WDITH*(j-1) + 1 + deltax, y0 + BLOCK_HEIGHT*(i-1) + 1 + deltay,
               x0 + BLOCK_WDITH*j - deltax, y0 + BLOCK_HEIGHT*i - deltay);
+    //setbkcolor(black);
   end;
 
   function isPossibleMove(di, dj: integer) : boolean;
@@ -178,6 +180,7 @@ implementation
   var i, j: integer;
       x, y: integer;
   begin
+    setbkcolor(cyan);
     if not wasLevelLoaded then
     begin
       wasLevelLoaded := true;
@@ -227,6 +230,7 @@ implementation
         end;
       drawrectanglefromcoords(playeri, playerj, yellow, PLAYER_TYPE);
     end;
+    setbkcolor(black);
   end;
 
   function isWon: boolean;
@@ -248,6 +252,7 @@ implementation
 
   function updateGame(c: char): integer;
   var res: integer;
+      tmp: char;
   begin
     if not wasLevelLoaded then
     begin
@@ -291,7 +296,13 @@ implementation
     if iswon then 
     begin
       drawGame;
-      delay(500);
+      setfillstyle(solidfill, green);
+      settextjustify(centertext, centertext);
+      bar(0, 150, 800, 450);
+      setcolor(white);
+      settextstyle(gothicfont, 0, 3);
+      outtextxy(800 div 2, 600 div 2, 'This is just a start');
+      tmp := readkey;
       curLvl := (curLvl + 1) mod LEVEL_COUNT;
       uploadMap;
     end;

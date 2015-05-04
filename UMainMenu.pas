@@ -5,7 +5,7 @@ interface
   uses graph, UConfig, crt, UGame;
 
   const elements: array[1..4] of string =
-     ('play', 'help', 'about', 'exit');
+     ('Play', 'Help', 'About', 'Exit');
   const ELEMENTS_SIZE = 4;
 
   procedure drawMainMenu;
@@ -20,18 +20,22 @@ implementation
  const x2 = 389;
  var y, i: integer;
  begin
+   setbkcolor(cyan);
    cleardevice;
+   settextstyle(gothicfont, 0, 5);
    setcolor(white);
    settextjustify(centertext, centertext);
    y := 100;
    for i := 0 to ELEMENTS_SIZE - 1 do
    begin
-     if i + 1 = selected then setcolor(blue);
-     rectangle(x1, 100 + 50*i + 20*i,
-               x2, 100 + 50*i + 20*i + 50);
-     outtextxy(320, 100 + 50*i+20*i+25, elements[i+1]);
+     if i + 1 = selected then setcolor(yellow);
+     {rectangle(x1, 100 + 50*i + 20*i,
+               x2, 100 + 50*i + 20*i + 50);}
+     outtextxy(400, 150 + 50*i+20*i+25, elements[i+1]);
      setcolor(white);
    end;
+   settextstyle(defaultfont,0,1);
+   setbkcolor(black);
  end;
 
  function handleenter: integer;

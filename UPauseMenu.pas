@@ -9,9 +9,9 @@ interface
 
 implementation
 
-  const ELEM_COUNT = 3;
+  const ELEM_COUNT = 4;
   const elements: array[1..ELEM_COUNT] of string =
-                  ('resume', 'restart', 'exit');
+                  ('resume', 'restart', 'main menu', 'exit');
   
   var cur: integer = 1;
       drawstack: array[1..20] of integer;
@@ -25,18 +25,22 @@ implementation
   var y, i: integer;
   
   begin
+    setbkcolor(cyan);
    cleardevice;
    setcolor(white);
+   settextstyle(gothicfont, 0, 5);
    settextjustify(centertext, centertext);
    y := 100;
    for i := 0 to ELEM_COUNT - 1 do
    begin
-     if i + 1 = cur then setcolor(blue);
-     rectangle(x1, 100 + 50*i + 20*i,
-               x2, 100 + 50*i + 20*i + 50);
-     outtextxy(320, 100 + 50*i+20*i+25, elements[i+1]);
+     if i + 1 = cur then setcolor(yellow);
+     {rectangle(x1, 100 + 50*i + 20*i,
+               x2, 100 + 50*i + 20*i + 50);}
+     outtextxy(400, 150 + 50*i+20*i+25, elements[i+1]);
      setcolor(white);
    end;
+   settextstyle(defaultfont,0,1);
+   setbkcolor(black);
   end;
 
   function handleenter: integer;
@@ -45,7 +49,8 @@ implementation
     case cur of 
       1: handleenter := PAUSE_MENU_EXIT;
       2: handleenter := PAUSE_MENU_RESTART;
-      3: handleenter := EXIT_CODE;
+      3: handleenter := PAUSE_MENU_TO_MAIN;
+      4: handleenter := EXIT_CODE;
     end;
   end;
 
