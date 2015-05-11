@@ -15,6 +15,7 @@ interface
   const MAIN_MENU_HELP = 101;
   const MAIN_MENU_ABOUT = 102;
   const MAIN_MENU_PLAY = 103;
+  const MAIN_MENU_cONTINUE = 104;
 
 
   const HELP_SCREEN_EXIT = 200;
@@ -30,6 +31,8 @@ interface
   CONST PAUSE_MENU_RESTART = 701;
 
   const PAUSE_MENU_TO_MAIN = 809;
+
+  const PAUSE_MENU_EXIT_CODE = 902;
 
 implementation
 

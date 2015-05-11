@@ -6,6 +6,7 @@ interface
   
   function updatePauseMenu(c: char): integer;
   procedure drawPauseMenu;
+  procedure initpausemenu;
 
 implementation
 
@@ -50,7 +51,7 @@ implementation
       1: handleenter := PAUSE_MENU_EXIT;
       2: handleenter := PAUSE_MENU_RESTART;
       3: handleenter := PAUSE_MENU_TO_MAIN;
-      4: handleenter := EXIT_CODE;
+      4: handleenter := PAUSE_MENU_EXIT_CODE;
     end;
   end;
 
@@ -92,6 +93,11 @@ implementation
     if shouldDraw then
       drawPauseMenu;
     updatePauseMenu := res;
+  end;
+
+  procedure initpausemenu;
+  begin
+    cur := 1;
   end;
 
 end.

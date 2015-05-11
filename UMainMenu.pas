@@ -4,16 +4,18 @@ interface
 
   uses graph, UConfig, crt, UGame;
 
-  const elements: array[1..4] of string =
-     ('Play', 'Help', 'About', 'Exit');
+  const elements: array[0..4] of string =
+     ('Continue', 'New game', 'Help', 'About', 'Exit');
   const ELEMENTS_SIZE = 4;
 
   procedure drawMainMenu;
   function updateMainMenu(c: char): integer;
+  procedure initMainMenu;
 
 implementation
 
  var selected: integer = 1;
+ var start: integer = 1;
 
  procedure drawMainMenu;
  const x1 = 250;
@@ -26,7 +28,7 @@ implementation
    setcolor(white);
    settextjustify(centertext, centertext);
    y := 100;
-   for i := 0 to ELEMENTS_SIZE - 1 do
+   for i := start-1 to ELEMENTS_SIZE - 1 do
    begin
      if i + 1 = selected then setcolor(yellow);
      {rectangle(x1, 100 + 50*i + 20*i,
@@ -41,6 +43,7 @@ implementation
  function handleenter: integer;
  begin
  case selected of
+   0: handleenter := MAIN_MENU_CONTINUE;
    1: handleenter := MAIN_MENU_PLAY;
    2: handleenter := MAIN_MENU_HELP;
    3: handleenter := MAIN_MENU_ABOUT;
@@ -52,6 +55,7 @@ implementation
  var res: integer;
      shoulddraw: boolean = false;
  begin
+   if canContinue then start := 0 else start := 1;
    res := 0;
    if c = #0 then
    begin
@@ -64,7 +68,7 @@ implementation
      #72:
        begin
          dec(selected);
-         if selected <= 0 then selected := 1
+         if selected < start then selected := start
          else shoulddraw := true;
        end;
      #80:
@@ -85,6 +89,12 @@ implementation
    if shoulddraw then
      drawmainmenu;
    updateMainMenu := res;
+ end;
+
+ procedure initMainMenu;
+ begin
+   if canContinue then start := 0 else start := 1;
+   selected := start;
  end;
 
 end.

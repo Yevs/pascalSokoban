@@ -6,8 +6,14 @@ interface
   procedure drawGame;
   procedure restart;
   function updateGame(c: char): integer;
+  procedure restartGame;
+  procedure initGame;
+  function canContinue:boolean;
+  procedure saveProgress;
 
 implementation
+
+  const PROGRESS_PATH = 'progress.txt';
 
   const WALL_CHAR = 'w';
   const BLOCK_CHAR = 'b';
@@ -34,7 +40,38 @@ implementation
       playeri, playerj: integer;
       waslastgoal: boolean = false;
       curLvl: integer = 0;
+      lastLvl: integer = 0;
       x0, y0: integer;
+
+  function getLastLevel:integer;
+  var f : text;
+      k : integer;
+      c : char;
+  begin
+    k := 0;
+    assign(f, PROGRESS_PATH);
+    reset(f);
+    while not eof(f) do
+    begin
+      read(f, c);
+      if c = '|' then
+        inc(k)
+      else
+        break;
+    end;
+    close(f);
+    getLastLevel := k;
+  end;
+
+  procedure saveLastLevel(level: integer);
+  var f : text;
+      i : integer;
+  begin
+    assign(f, PROGRESS_PATH);
+    rewrite(f);
+    for i := 1 to level do write(f, '|');
+    close(f);
+  end;
 
 
   procedure drawrectanglefromcoords(i,j: integer; color: word; btype: integer);
@@ -176,6 +213,52 @@ implementation
     close(f);
   end;
 
+  procedure drawGameFromStack;
+  var i, j: integer;
+      x, y: integer;
+  begin
+    while (dstackcount > 0) do
+    begin
+      x := drawstack[dstackcount, 1];
+      y := drawstack[dstackcount, 2];
+      case arr[x, y] of
+        WALL_CHAR: drawrectanglefromcoords(x, y, brown, BLOCK_TYPE);
+        BLOCK_CHAR: drawrectanglefromcoords(x, y, white, BLOCK_TYPE);
+        GOAL_CHAR: drawrectanglefromcoords(x, y,red, GOAL_TYPE);
+        GOALBLOCK_CHAR: drawrectanglefromcoords(x, y,green, GOAL_TYPE);
+        SPACE_CHAR: drawrectanglefromcoords(x, y, black, BLOCK_TYPE);
+      end;
+      if goals[x, y] then drawrectanglefromcoords(x, y, red, GOAL_TYPE);
+      if (goals[x, y]) and (arr[x,y]=BLOCK_CHAR) then
+      begin
+        drawrectanglefromcoords(x, y, green, GOAL_TYPE);
+        drawrectanglefromcoords(x, y, white, BLOCK_TYPE);
+      end;
+      drawrectanglefromcoords(playeri, playerj, yellow, PLAYER_TYPE);
+      dec(dstackcount);
+    end;
+  end;
+
+  procedure drawGameFromScratch;
+  var i, j: integer;
+  begin
+    cleardevice;
+    for i := 1 to height do
+      for j := 1 to width do
+      begin
+        if goals[i,j] then drawrectanglefromcoords(i, j, red, GOAL_TYPE);
+        if (goals[i,j]) and
+           (arr[i,j] = BLOCK_CHAR) then drawrectanglefromcoords(i, j, green, GOAL_TYPE);
+        case arr[i, j] of
+          WALL_CHAR: drawrectanglefromcoords(i, j, brown, BLOCK_TYPE);
+          BLOCK_CHAR: drawrectanglefromcoords(i, j, white, BLOCK_TYPE);
+          GOAL_CHAR: drawrectanglefromcoords(i, j,red, GOAL_TYPE);
+          GOALBLOCK_CHAR: drawrectanglefromcoords(i, j,green, GOAL_TYPE);
+        end;
+      end;
+    drawrectanglefromcoords(playeri, playerj, yellow, PLAYER_TYPE);
+  end;
+
   procedure drawGame;
   var i, j: integer;
       x, y: integer;
@@ -187,49 +270,9 @@ implementation
       uploadMap;
     end;
     if dstackcount > 0 then
-    begin
-      while (dstackcount > 0) do
-      begin
-        x := drawstack[dstackcount, 1];
-        y := drawstack[dstackcount, 2];
-        case arr[x, y] of
-          WALL_CHAR: drawrectanglefromcoords(x, y, brown, BLOCK_TYPE);
-          BLOCK_CHAR: drawrectanglefromcoords(x, y, white, BLOCK_TYPE);
-          GOAL_CHAR: drawrectanglefromcoords(x, y,red, GOAL_TYPE);
-          GOALBLOCK_CHAR: drawrectanglefromcoords(x, y,green, GOAL_TYPE);
-          SPACE_CHAR: drawrectanglefromcoords(x, y, black, BLOCK_TYPE);
-        end;
-
-        if goals[x, y] then drawrectanglefromcoords(x, y, red, GOAL_TYPE);
-        if (goals[x, y]) and (arr[x,y]=BLOCK_CHAR) then
-        begin
-          drawrectanglefromcoords(x, y, green, GOAL_TYPE);
-          drawrectanglefromcoords(x, y, white, BLOCK_TYPE);
-        end;
-        drawrectanglefromcoords(playeri, playerj, yellow, PLAYER_TYPE);
-        dec(dstackcount);
-      end;
-    end
+      drawGameFromStack
     else
-    begin
-      cleardevice;
-        for i := 1 to height do
-          for j := 1 to width do
-          begin
-            if goals[i,j] then drawrectanglefromcoords(i, j, red, GOAL_TYPE);
-            if (goals[i,j]) and
-               (arr[i,j] = BLOCK_CHAR) then drawrectanglefromcoords(i, j, green, GOAL_TYPE);
-  
-            case arr[i, j] of
-              WALL_CHAR: drawrectanglefromcoords(i, j, brown, BLOCK_TYPE);
-              BLOCK_CHAR: drawrectanglefromcoords(i, j, white, BLOCK_TYPE);
-              GOAL_CHAR: drawrectanglefromcoords(i, j,red, GOAL_TYPE);
-              GOALBLOCK_CHAR: drawrectanglefromcoords(i, j,green, GOAL_TYPE);
-            end;
-  
-        end;
-      drawrectanglefromcoords(playeri, playerj, yellow, PLAYER_TYPE);
-    end;
+      drawGameFromScratch;
     setbkcolor(black);
   end;
 
@@ -247,6 +290,24 @@ implementation
         end;
     //if res then dstackcount := 0;
     isWon := res;
+  end;
+
+
+  procedure initNextLevel;
+  var tmp : char;
+  begin
+    drawGame;
+    setfillstyle(solidfill, green);
+    settextjustify(centertext, centertext);
+    bar(0, 150, 800, 450);
+    setcolor(white);
+    settextstyle(gothicfont, 0, 3);
+    outtextxy(800 div 2, 600 div 2, 'This is just a start');
+    tmp := readkey;
+    inc(lastLvl);
+    if lastLvl > LEVEL_COUNT then dec(lastLvl);
+    curLvl := (curLvl + 1) mod LEVEL_COUNT;
+    uploadMap;
   end;
 
 
@@ -294,23 +355,40 @@ implementation
     end;
     updateGame := res;
     if iswon then 
-    begin
-      drawGame;
-      setfillstyle(solidfill, green);
-      settextjustify(centertext, centertext);
-      bar(0, 150, 800, 450);
-      setcolor(white);
-      settextstyle(gothicfont, 0, 3);
-      outtextxy(800 div 2, 600 div 2, 'This is just a start');
-      tmp := readkey;
-      curLvl := (curLvl + 1) mod LEVEL_COUNT;
-      uploadMap;
-    end;
+      initNextLevel;
+  end;
+
+  procedure restartGame;
+  begin
+    curLvl := 0;
+    lastLvl := 0;
+    saveLastLevel(lastLvl);
+    uploadMap;
+  end;
+
+  procedure initGame;
+  begin
+    lastLvl := getLastLevel;
+    curLvl := lastLvl;
+    uploadMap;
   end;
 
   procedure restart;
   begin
     uploadMap;
+  end;
+
+  function canContinue:boolean;
+  begin
+    if lastLvl > 0 then
+      canContinue := true
+    else
+      canContinue := false;
+  end;
+
+  procedure saveProgress;
+  begin
+    saveLastLevel(lastLvl);
   end;
 
 end.

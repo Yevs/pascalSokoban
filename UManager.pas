@@ -79,6 +79,8 @@ implementation
   var c: char;
       res: integer;
   begin
+    initgame;
+    initmainmenu;
     pushstate(MAIN_MENU_STATE);
     draw;
     repeat
@@ -93,6 +95,7 @@ implementation
         MAIN_MENU_EXIT:
           begin
             shutdown;
+            saveprogress;
             break;
           end;
         MAIN_MENU_HELP:
@@ -107,7 +110,14 @@ implementation
           end;
         MAIN_MENU_PLAY:
           begin
+            restartGame;
             pushState(GAME_STATE);
+            draw;
+          end;
+        MAIN_MENU_CONTINUE:
+          begin
+            initgame;
+            pushstate(GAME_STATE);
             draw;
           end;
         HELP_SCREEN_EXIT:
@@ -129,6 +139,7 @@ implementation
           end;
         GAME_PAUSE:
           begin
+            initpausemenu;
             pushstate(PAUSE_STATE);
             draw;
           end;
@@ -142,7 +153,15 @@ implementation
           begin
             delstate;
             delstate;
+            saveprogress;
+            initmainmenu;
             draw;
+          end;
+        PAUSE_MENU_EXIT_CODE:
+          begin
+            saveprogress;
+            shutdown;
+            break;
           end;
       end;
     until false;
