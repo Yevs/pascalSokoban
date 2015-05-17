@@ -20,7 +20,7 @@ implementation
   const GOAL_CHAR = 'g';
   const GOALBLOCK_CHAR = '$';
   const SPACE_CHAR = 's';
-  const LEVEL_COUNT = 2;
+  const LEVEL_COUNT = 9;
   const BLOCK_WDITH = 50;
   const BLOCK_HEIGHT = 50;
 
@@ -30,7 +30,17 @@ implementation
   CONST SPACE_TYPE = 0;
   CONST PLAYER_TYPE = 2;
 
-  var levels: array[0..LEVEL_COUNT-1] of string = ('map.txt', 'map1.txt');
+  var levels: array[0..LEVEL_COUNT-1] of string = ('map.txt', 'map2.txt', 'map4.txt', 'map5.txt',
+                                                   'map6.txt', 'map7.txt', 'map8.txt', 'map3.txt', 'map1.txt');
+      messages: array[0..LEVEL_COUNT-1] of string = ('This was just a start',
+                                                     'You are making progress',
+                                                     'Getting better',
+                                                     'Tutorial is over',
+                                                     'Middle of the way',
+                                                     'Rolling on',
+                                                     'Next one is harder',
+                                                     'Finishing line',
+                                                     'Congrats! You won!!!');
       drawstack: array[1..10000, 1..2] of integer;
       dstackcount: integer = 0;
       arr: array[1..50, 1..50] of char;
@@ -302,7 +312,7 @@ implementation
     bar(0, 150, 800, 450);
     setcolor(white);
     settextstyle(gothicfont, 0, 3);
-    outtextxy(800 div 2, 600 div 2, 'This is just a start');
+    outtextxy(800 div 2, 600 div 2, messages[curLvl]);
     tmp := readkey;
     inc(lastLvl);
     if lastLvl > LEVEL_COUNT then dec(lastLvl);
@@ -344,6 +354,7 @@ implementation
             moveRight;
             res := GAME_REDRAW;
           end;
+
         #80:
           begin
             moveDown;
@@ -354,7 +365,7 @@ implementation
       end;
     end;
     updateGame := res;
-    if iswon then 
+    if iswon then
       initNextLevel;
   end;
 
